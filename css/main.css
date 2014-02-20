@@ -69,7 +69,7 @@ div#status {
 	padding: 0.5em;
 	position: absolute;
 /*	-webkit-transform: rotateY(0deg); */
-	transition: opacity 2s;
+	transition: opacity 1s;
 	width: calc(100% - 1em + 1px); /* magic number :^\ */
 	z-index: 2;
 }
@@ -91,7 +91,9 @@ div#videos {
 
 div#videos.active {
 	-webkit-transform: rotateY(180deg);
-	-moz-transform: rotateY(180deg);
+  -moz-transform: rotateY(180deg);
+  -o-transform: rotateY(180deg);
+  transform: rotateY(180deg);
 }
 
 html {
@@ -163,7 +165,10 @@ video#remoteVideo {
 	max-height: 100%;
 	opacity: 0;
 	position: absolute;
-	-webkit-transform: rotateY(180deg);
+  -webkit-transform: rotateY(180deg);
+  -moz-transform: rotateY(180deg);
+  -o-transform: rotateY(180deg);
+  transform: rotateY(180deg);
 	transition: opacity 2s;
 	width: 100%;
 	z-index: -1;

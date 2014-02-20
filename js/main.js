@@ -196,8 +196,15 @@ function maybeStart() {
 }
 
 function setStatus(state) {
-  document.getElementById('status').innerHTML = state;
+  if (state === ""){
+    statusDiv.classList.remove("active");
+
+  } else {
+    statusDiv.classList.add("active");
+  }
+  statusDiv.innerHTML = state;
 }
+
 
 function doCall() {
   var constraints = mergeConstraints(offerConstraints, sdpConstraints);
@@ -452,6 +459,7 @@ function transitionToActive() {
     logoLink.classList.add("active");
   }, 1500);
   setStatus("");
+  console.log('transitionToActive()');
   miniVideo.classList.add("active");
 }
 
@@ -475,9 +483,9 @@ function transitionToDone() {
   setStatus("You have left the call. <a href=\"{{ room_link }}\">Click here</a> to rejoin.");
 }
 
-function enterFullScreen() {
-  container.webkitRequestFullScreen();
-}
+// function enterFullScreen() {
+//   container.webkitRequestFullScreen();
+// }
 
 function noteIceCandidate(location, type) {
   if (gatheredIceCandidateTypes[location][type])
