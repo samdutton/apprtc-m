@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta name="keywords" content="Sam Dutton, HTML5, JavaScript" />
+<meta name="description" content="Check for resized images." />
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1">
+
+<base target="_blank">
+
+<title>apprtc mobile mockup</title>
+
+<link rel="stylesheet" href="css/main.css" />
+
+</head>
+<body>
+
+<div id="videos">
+	<img id="hangup" src="images/crossCircleGrey.svg" alt="Hang up" title="Click to hang up">
+	<a href="http://www.webrtc.org" title="Visit the WebRTC project home page"><img id="logo" src="images/webrtcLogo.png" alt="WebRTC logo"></a>
+	<video id="main" poster="images/zoe.jpg"></video>
+	<video id="mini" poster="images/sam.jpg"></video>
+	<div id="status">Some old status message blah blah blah<div>
+</div>
+
+</body>
+
+<script>
+document.querySelector("#videos").ondblclick = webkitRequestFullScreen;
+document.querySelector("#hangup").onclick = onHangup;
+};
+</script>
+
+</html>

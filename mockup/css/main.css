@@ -1,0 +1,71 @@
+a {
+	color: #15c;
+	outline: none;
+	text-decoration: none;
+}
+
+a:hover {
+	color: #88bbff;
+	text-decoration: underline;
+}
+
+body {
+	background-color: black;
+	font-family: 'Lucida Grande', sans-serif;
+	margin: 0;
+	padding: 0;
+}
+
+div#status {
+	background: black;
+	bottom: 0;
+	color: white;
+	line-height: 1.3em;
+	opacity: 0.5;
+	padding: 0.5em;
+	position: absolute;
+	width: calc(75% - 1em);
+}
+
+div#videos {
+	position: relative;
+}
+
+img#hangup {
+	cursor: pointer;
+	right: 5%;
+	top: 5%;
+	opacity: 0.6;
+	position: absolute;
+	width: 10%;
+	min-width: 3em;;
+}
+
+img#hangup:hover {
+	opacity: 1;
+}
+
+img#logo {
+	left: 5%;
+	top: 5%;
+	opacity: 0.3;
+	position: absolute;
+	width: 6.5%;
+	min-width: 2em;
+}
+
+video#main {
+	display: block;
+	max-height: 100%;
+	width: 100%;
+}
+
+video#mini {
+	border-left: 2px solid #444;
+	border-top: 2px solid #444;
+	bottom: 0;
+	position: absolute;
+	right: 0;
+	width: 25%;
+	z-index: 1;
+}
