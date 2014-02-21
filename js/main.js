@@ -37,14 +37,16 @@ function initialize() {
     return;
   }
 
-  hangupImg.onclick = function(){onHangup()};
+  hangupImg.onclick = hangup;
 
   console.log('Initializing; room=' + roomKey + '.');
   // Reset localVideo display to center.
   localVideo.addEventListener('loadedmetadata', function(){
     adjustContainerSize();}
   );
-  resetStatus();
+  remoteVideo.addEventListener('loadedmetadata', function(){
+    adjustContainerSize();}
+  );
   // NOTE: AppRTCClient.java searches & parses this line; update there when
   // changing here.
   openChannel();
@@ -128,20 +130,11 @@ function onTurnResult() {
   maybeStart();
 }
 
-function resetStatus() {
-  if (!initiator) {
-    setStatus('Waiting for someone to join: \
-              <a href=' + roomLink + '>' + roomLink + '</a>');
-  } else {
-    setStatus('Initializing...');
-  }
-}
-
 function doGetUserMedia() {
   // Call into getUserMedia via the polyfill (adapter.js).
   try {
-    getUserMedia(mediaConstraints, onUserMediaSuccess,
-                 onUserMediaError);
+    setStatus("Initializing...");
+    getUserMedia(mediaConstraints, onUserMediaSuccess, onUserMediaError);
     console.log('Requested access to local media with mediaConstraints:\n' +
                 '  \'' + JSON.stringify(mediaConstraints) + '\'');
   } catch (e) {
@@ -331,7 +324,7 @@ function onChannelClosed() {
 function messageError(msg) {
   console.log(msg);
   infoDivErrors.push(msg);
-  updateInfoDiv();
+  updateInfo();
 }
 
 function onUserMediaSuccess(stream) {
@@ -340,6 +333,8 @@ function onUserMediaSuccess(stream) {
   attachMediaStream(localVideo, stream);
   localVideo.classList.add('active');
   localStream = stream;
+  setStatus('Waiting for someone to join: <a href=' +
+    roomLink + '>' + roomLink + '</a>');
   // Caller creates PeerConnection.
   maybeStart();
 }
@@ -399,15 +394,16 @@ function onRemoteStreamRemoved(event) {
 }
 
 function onSignalingStateChanged(event) {
-  updateInfoDiv();
+  updateInfo();
 }
 
 function onIceConnectionStateChanged(event) {
-  updateInfoDiv();
+  updateInfo();
 }
 
-function onHangup() {
+function hangup() {
   console.log('Hanging up.');
+  setStatus('Hanging up');
   transitionToDone();
   localStream.stop();
   stop();
@@ -416,7 +412,7 @@ function onHangup() {
 }
 
 function onRemoteHangup() {
-  console.log('Session terminated.');
+  setStatus('The remote side hung up.');
   initiator = 0;
   transitionToWaiting();
   stop();
@@ -463,14 +459,15 @@ function transitionToActive() {
 
 function transitionToWaiting() {
   videosDiv.classList.remove("active");
+  extrasDiv.classList.remove("active");
   setTimeout(function() {
     localVideo.src = miniVideo.src;
     miniVideo.src = "";
     remoteVideo.src = "";
-    resetStatus();
   }, 500);
   miniVideo.classList.remove("active");
-  remoteVideo.remove("active");
+  localVideo.classList.add("active");
+  remoteVideo.classList.remove("active");
 }
 
 function transitionToDone() {
@@ -479,7 +476,7 @@ function transitionToDone() {
   miniVideo.classList.remove("active");
   hangupImg.classList.remove("active");
   logoLink.classList.remove("active");
-  setStatus("You have left the call. <a href=\"" + roomLink + "\">Click here</a> to rejoin.");
+  setStatus("You have left the call. <a target=\"_self\" href=\"" + roomLink + "\">Click here</a> to rejoin.");
 }
 
 // function enterFullScreen() {
@@ -490,50 +487,37 @@ function noteIceCandidate(location, type) {
   if (gatheredIceCandidateTypes[location][type])
     return;
   gatheredIceCandidateTypes[location][type] = 1;
-  updateInfoDiv();
+  updateInfo();
 }
 
 function getInfoDiv() {
   return document.getElementById("status");
 }
 
-function updateInfoDiv() {
-  var contents = "<pre>Gathered ICE Candidates\n";
-  for (var endpoint in gatheredIceCandidateTypes) {
-    contents += endpoint + ":\n";
-    for (var type in gatheredIceCandidateTypes[endpoint])
-      contents += "  " + type + "\n";
-  }
+function updateInfo() {
+  var info = "";
   if (pc != null) {
-    contents += "Gathering: " + pc.iceGatheringState + "\n";
-    contents += "</pre>\n";
-    contents += "<pre>PC State:\n";
-    contents += "Signaling: " + pc.signalingState + "\n";
-    contents += "ICE: " + pc.iceConnectionState + "\n";
+    if (Object.keys(gatheredIceCandidateTypes).length > 0) {
+      info = "Gathered ICE Candidates<br />";
+      for (var endpoint in gatheredIceCandidateTypes) {
+        info += endpoint + ":<br />";
+        for (var type in gatheredIceCandidateTypes[endpoint]) {
+          info += "&nbsp;&nbsp;" + type + "<br />";
+        }
+      }
+    }
+    info += "Gathering: " + pc.iceGatheringState + "<br />";
+    info += "PC State:<br />";
+    info += "Signaling: " + pc.signalingState + "<br />";
+    info += "ICE: " + pc.iceConnectionState + "<br />";
   }
-  var div = getInfoDiv();
-  div.innerHTML = contents + "</pre>";
-
   for (var msg in infoDivErrors) {
-    div.innerHTML += '<p style="background-color: red; color: yellow;">' +
-                     infoDivErrors[msg] + '</p>';
+    info += '<div style="background-color: red; color: yellow;">' +
+    infoDivErrors[msg] + '</div>';
   }
-  if (infoDivErrors.length)
-    showInfoDiv();
-}
-
-function toggleInfoDiv() {
-  var div = getInfoDiv();
-  if (div.style.display == "block") {
-    div.style.display = "none";
-  } else {
-    showInfoDiv();
+  if (info !== "") {
+    setStatus(info);
   }
-}
-
-function showInfoDiv() {
-  var div = getInfoDiv();
-  div.style.display = "block";
 }
 
 function toggleVideoMute() {
