@@ -40,13 +40,10 @@ function initialize() {
   hangupImg.onclick = function(){onHangup()};
 
   console.log('Initializing; room=' + roomKey + '.');
-  card = document.getElementById('card');
-  localVideo = document.getElementById('localVideo');
   // Reset localVideo display to center.
   localVideo.addEventListener('loadedmetadata', function(){
-    window.onresize();});
-  miniVideo = document.getElementById('miniVideo');
-  remoteVideo = document.getElementById('remoteVideo');
+    adjustContainerSize();}
+  );
   resetStatus();
   // NOTE: AppRTCClient.java searches & parses this line; update there when
   // changing here.
@@ -195,14 +192,13 @@ function maybeStart() {
   }
 }
 
-function setStatus(state) {
-  if (state === ""){
+function setStatus(status) {
+  if (status === ""){
     statusDiv.classList.remove("active");
-
   } else {
     statusDiv.classList.add("active");
   }
-  statusDiv.innerHTML = state;
+  statusDiv.innerHTML = status;
 }
 
 
@@ -342,7 +338,7 @@ function onUserMediaSuccess(stream) {
   console.log('User has granted access to local media.');
   // Call the polyfill wrapper to attach the media stream to this element.
   attachMediaStream(localVideo, stream);
-  localVideo.style.opacity = 1;
+  localVideo.classList.add('active');
   localStream = stream;
   // Caller creates PeerConnection.
   maybeStart();
@@ -452,15 +448,17 @@ function transitionToActive() {
   remoteVideo.classList.add("active");
   videosDiv.classList.add("active");
   setTimeout(function() {
-    localVideo.src = "";
+    localVideo.src = '';
     localVideo.classList.remove("active");
-    extrasDiv.classList.add("active");
+  }, 500);
+  setTimeout(function() {
+    miniVideo.classList.add("active");
     hangupImg.classList.add("active");
     logoLink.classList.add("active");
-  }, 1500);
+    extrasDiv.classList.add("active");
+  }, 1000);
+  adjustContainerSize(); // force display to handle video size
   setStatus("");
-  console.log('transitionToActive()');
-  miniVideo.classList.add("active");
 }
 
 function transitionToWaiting() {
@@ -468,10 +466,11 @@ function transitionToWaiting() {
   setTimeout(function() {
     localVideo.src = miniVideo.src;
     miniVideo.src = "";
-    remoteVideo.src = "" }, 500);
+    remoteVideo.src = "";
+    resetStatus();
+  }, 500);
   miniVideo.classList.remove("active");
   remoteVideo.remove("active");
-  resetStatus();
 }
 
 function transitionToDone() {
@@ -480,7 +479,7 @@ function transitionToDone() {
   miniVideo.classList.remove("active");
   hangupImg.classList.remove("active");
   logoLink.classList.remove("active");
-  setStatus("You have left the call. <a href=\"{{ room_link }}\">Click here</a> to rejoin.");
+  setStatus("You have left the call. <a href=\"" + roomLink + "\">Click here</a> to rejoin.");
 }
 
 // function enterFullScreen() {
@@ -751,11 +750,13 @@ window.onbeforeunload = function() {
 }
 
 // Set the video diplaying in the center of window.
-window.onresize = function(){
+window.onresize = adjustContainerSize;
+
+function adjustContainerSize(){
   var aspectRatio;
-  if (remoteVideo.style.opacity === '1') {
+  if (remoteVideo.videoHeight !== 0) {
     aspectRatio = remoteVideo.videoWidth/remoteVideo.videoHeight;
-  } else if (localVideo.style.opacity === '1') {
+  } else if (localVideo.videoHeight !== 0) {
     aspectRatio = localVideo.videoWidth/localVideo.videoHeight;
   } else {
     return;
