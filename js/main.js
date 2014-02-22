@@ -333,10 +333,30 @@ function onUserMediaSuccess(stream) {
   attachMediaStream(localVideo, stream);
   localVideo.classList.add('active');
   localStream = stream;
-  setStatus('Waiting for someone to join: <a href=' +
-    roomLink + '>' + roomLink + '</a>');
+
+  var status = '<div>Waiting for someone to join: <a href=' +
+    roomLink + '>' + roomLink + '</a></div>';
+
+  status += '<div><label for="email">Email link:</label> <input id="emailAddress" type="email" autofocus placeholder="Enter email address" style="width: 15em;" /> <button id="emailButton">Send</button></div><div><a href="." id="gplusLink">Google+</a></div>';
+
+  setStatus(status);
+
+  document.querySelector('input#emailAddress').onkeydown = function(e){
+    if (e.keyCode === 13){
+      sendEmail();
+    }
+  };
+  document.querySelector('#emailButton').onclick = sendEmail;
+
   // Caller creates PeerConnection.
   maybeStart();
+}
+
+function sendEmail(){
+  var emailInput = document.querySelector('input#emailAddress');
+  var subject = 'Join me for a video chat!';
+  var body = 'Please join me at the following address:\n\n' + roomLink;
+  window.location = 'mailto:' + emailInput.value + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
 }
 
 function onUserMediaError(error) {
@@ -488,10 +508,6 @@ function noteIceCandidate(location, type) {
     return;
   gatheredIceCandidateTypes[location][type] = 1;
   updateInfo();
-}
-
-function getInfoDiv() {
-  return document.getElementById("status");
 }
 
 function updateInfo() {

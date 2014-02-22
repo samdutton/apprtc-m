@@ -29,7 +29,7 @@ a#logo.active:hover {
 
 body {
 	background-color: black;
-	font-family: 'Lucida Grande', sans-serif;
+	font-family: 'Open', sans-serif;
 	height: 100%;  /* yuk! */
 	margin: 0;
 	padding: 0;
@@ -63,8 +63,8 @@ div#status {
 	color: white;
 	font-size: 0.8em;
 	left: 0;
-	line-height: 1.3em;
-	min-height: 1.3em;
+	line-height: 2em;
+	min-height: 2em;
 	opacity: 0;
 	padding: 0.5em;
 	position: absolute;
