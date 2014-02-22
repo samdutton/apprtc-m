@@ -337,9 +337,20 @@ function onUserMediaSuccess(stream) {
   var status = '<div>Waiting for someone to join: <a href=' +
     roomLink + '>' + roomLink + '</a></div>';
 
-  status += '<div><label for="email">Email link:</label> <input id="emailAddress" type="email" autofocus placeholder="Enter email address" style="width: 15em;" /> <button id="emailButton">Send</button></div><div><a href="." id="gplusLink">Google+</a></div>';
+  // status += '<div><label for="email">Send link by email:</label> <input id="emailAddress" type="email" autofocus placeholder="Enter email address" style="width: 15em;" /> <button id="emailButton">Send</button></div><div><a href="https://plus.google.com/share?url=' + encodeURIComponent(roomLink) + '" id="gplusLink">Share link via Google+</a></div>';
+
+    status += '<div style="margin: 0 0 0.5 0"><label for="email">Send link by email:</label> <input id="emailAddress" type="email" autofocus placeholder="Enter email address" style="width: 15em;" /> <button id="emailButton">Send</button></div><div><div class="g-plus" data-action="share" data-height="15"></div></div>';
 
   setStatus(status);
+
+  // Google+ sharing
+  window.___gcfg = {lang: 'en-GB'};
+  (function() {
+    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+    po.src = 'https://apis.google.com/js/platform.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+  })();
+
 
   document.querySelector('input#emailAddress').onkeydown = function(e){
     if (e.keyCode === 13){
@@ -528,7 +539,7 @@ function updateInfo() {
     info += "ICE: " + pc.iceConnectionState + "<br />";
   }
   for (var msg in infoDivErrors) {
-    info += '<div style="background-color: red; color: yellow;">' +
+    info += '<div style="background-color: red; color: yellow; padding: 5px;">' +
     infoDivErrors[msg] + '</div>';
   }
   if (info !== "") {
