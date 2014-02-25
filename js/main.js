@@ -5,7 +5,7 @@ var localVideo = document.getElementById("localVideo");
 var remoteVideo = document.getElementById("remoteVideo");
 var hangupImg = document.getElementById("hangup");
 var logoLink = document.getElementById("logo");
-var statusDiv = document.getElementById("status");
+var footer = document.querySelector("footer");
 
 var hasLocalStream;
 var localStream;
@@ -146,7 +146,7 @@ function doGetUserMedia() {
 function createPeerConnection() {
   try {
     // Create an RTCPeerConnection via the polyfill (adapter.js).
-    pc = new RTCPeerConnection(pcConfig, pcConstraints);
+    pc = new RTCPeerConnection(null, pcConstraints);
     pc.onicecandidate = onIceCandidate;
     console.log('Created RTCPeerConnnection with:\n' +
                 '  config: \'' + JSON.stringify(pcConfig) + '\';\n' +
@@ -187,11 +187,11 @@ function maybeStart() {
 
 function setStatus(status) {
   if (status === ""){
-    statusDiv.classList.remove("active");
+    footer.classList.remove("active");
   } else {
-    statusDiv.classList.add("active");
+    footer.classList.add("active");
   }
-  statusDiv.innerHTML = status;
+  footer.innerHTML = status;
 }
 
 
@@ -334,12 +334,13 @@ function onUserMediaSuccess(stream) {
   localVideo.classList.add('active');
   localStream = stream;
 
-  var status = '<div>Waiting for someone to join: <a href=' +
+  var status = '<div id="roomLink">Waiting for someone to join: <a href=' +
     roomLink + '>' + roomLink + '</a></div>';
 
-  // status += '<div><label for="email">Send link by email:</label> <input id="emailAddress" type="email" autofocus placeholder="Enter email address" style="width: 15em;" /> <button id="emailButton">Send</button></div><div><a href="https://plus.google.com/share?url=' + encodeURIComponent(roomLink) + '" id="gplusLink">Share link via Google+</a></div>';
+  // status += '<div><label for="email">Send link by email:</label> <input id="emailAddress" type="email" autofocus placeholder="Enter email address" /> <button id="emailButton">Send</button></div><div><a href="https://plus.google.com/share?url=' + encodeURIComponent(roomLink) + '" id="gplusLink">Share link via Google+</a></div>';
 
-    status += '<div style="margin: 0 0 0.5 0"><label for="email">Send link by email:</label> <input id="emailAddress" type="email" autofocus placeholder="Enter email address" style="width: 15em;" /> <button id="emailButton">Send</button></div><div><div class="g-plus" data-action="share" data-height="15"></div></div>';
+    status += '<div class="g-plus" data-action="share" data-height="35"></div>';
+    status += '<div id="emailDiv"><label for="email">Share link by email:</label><input id="emailAddress" type="email" autofocus placeholder="Enter email address" /><button id="emailButton">Send</button></div>';
 
   setStatus(status);
 
@@ -367,7 +368,10 @@ function sendEmail(){
   var emailInput = document.querySelector('input#emailAddress');
   var subject = 'Join me for a video chat!';
   var body = 'Please join me at the following address:\n\n' + roomLink;
-  window.location = 'mailto:' + emailInput.value + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+  var a = document.createElement('a');
+  a.href = 'mailto:' + emailInput.value + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+  a.click();
+  // window.location = 'mailto:' + emailInput.value + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
 }
 
 function onUserMediaError(error) {
@@ -537,12 +541,14 @@ function updateInfo() {
     info += "PC State:<br />";
     info += "Signaling: " + pc.signalingState + "<br />";
     info += "ICE: " + pc.iceConnectionState + "<br />";
+//    setTimeout(function(){setStatus('')}, 2000);
   }
   for (var msg in infoDivErrors) {
-    info += '<div style="background-color: red; color: yellow; padding: 5px;">' +
+    info += '<div color: red;">' +
     infoDivErrors[msg] + '</div>';
   }
   if (info !== "") {
+    console.log(info);
     setStatus(info);
   }
 }
