@@ -11,22 +11,25 @@
 <meta itemprop="description" content="Video chat using the reference WebRTC application">
 <meta itemprop="image" content="images/webrtcLogo.png">
 
-<base target="_blank">
-
 <title>apprtc-m</title>
 
-<link href='http://fonts.googleapis.com/css?family=Roboto:400,300' rel='stylesheet' type='text/css'>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+<link rel="icon" href="/favicon.ico" type="image/png" />
+<link rel="icon" href="/favicon.ico" type="image/x-icon" />
+<link rel="apple-touch-icon" href="/touch-icon-ipad.png" />
+<link href='//fonts.googleapis.com/css?family=Roboto:400,300' rel='stylesheet' type='text/css'>
 <link rel="stylesheet" href="css/main.css" />
 <link rel="canonical" href="{{ room_link }}"/>
 
 </head>
+
 <body>
 
 <div id="container">
 
   <div id="extras">
-    <a id="logo" href="http://www.webrtc.org/demo" title="Download the source code for this demo"><img src="images/webrtcLogo.png" alt="WebRTC logo" /></a>
-    <img id="hangup" src="images/crossCircleGrey.svg" alt="Hang up" title="Click to hang up" />
+    <a id="logo" target="_blank" href="//www.webrtc.org/demo" title="Download the source code for this demo"><img src="images/webrtcLogo.png" alt="WebRTC logo" /></a>
+    <img id="hangup" src="images/crossCircleGrey.svg" alt="Hang up" title="End this call" />
   </div>
 
   <div id="videos">
@@ -45,20 +48,20 @@
 
 <script>
 // values set by App Engine app
-var errorMessages = {{ error_messages }};
-var channelToken = '{{ token }}';
-var me = '{{ me }}';
-var roomKey = '{{ room_key }}';
-var roomLink = '{{ room_link }}';
-var initiator = {{ initiator }};
-var pcConfig = {{ pc_config | safe }};
-var pcConstraints = {{ pc_constraints | safe }};
-var offerConstraints = {{ offer_constraints | safe }};
-var mediaConstraints = {{ media_constraints | safe }};
-var turnUrl = '{{ turn_url }}';
-var stereo = {{ stereo }};
 var audio_send_codec = '{{ audio_send_codec }}';
 var audio_receive_codec = '{{ audio_receive_codec }}';
+var channelToken = '{{ token }}';
+var errorMessages = {{ error_messages }};
+var initiator = {{ initiator }};
+var me = '{{ me }}';
+var mediaConstraints = {{ media_constraints | safe }};
+var offerConstraints = {{ offer_constraints | safe }};
+var pcConfig = {{ pc_config | safe }};
+var pcConstraints = {{ pc_constraints | safe }};
+var roomKey = '{{ room_key }}';
+var roomLink = '{{ room_link }}';
+var stereo = {{ stereo }};
+var turnUrl = '{{ turn_url }}';
 
 setTimeout(initialize, 1);
 </script>

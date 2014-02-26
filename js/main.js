@@ -334,12 +334,12 @@ function onUserMediaSuccess(stream) {
   localVideo.classList.add('active');
   localStream = stream;
 
-  var status = '<div id="roomLink">Waiting for someone to join: <a href=' +
-    roomLink + '>' + roomLink + '</a></div>';
+  var status = '<div id="roomLink">Waiting for someone to join this room: <a href=' +
+    roomLink + ' target="_blank">' + roomLink + '</a></div>';
 
   // status += '<div><label for="email">Send link by email:</label> <input id="emailAddress" type="email" autofocus placeholder="Enter email address" /> <button id="emailButton">Send</button></div><div><a href="https://plus.google.com/share?url=' + encodeURIComponent(roomLink) + '" id="gplusLink">Share link via Google+</a></div>';
 
-    status += '<div class="g-plus" data-action="share" data-height="35"></div>';
+    status += '<div id="googlePlus" class="g-plus" data-action="share" data-height="35"></div>';
     status += '<div id="emailDiv"><label for="email">Share link by email:</label><input id="emailAddress" type="email" autofocus placeholder="Enter email address" /><button id="emailButton">Send</button></div>';
 
   setStatus(status);
@@ -370,6 +370,7 @@ function sendEmail(){
   var body = 'Please join me at the following address:\n\n' + roomLink;
   var a = document.createElement('a');
   a.href = 'mailto:' + emailInput.value + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+  a.target = '_blank';
   a.click();
   // window.location = 'mailto:' + emailInput.value + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
 }
@@ -511,7 +512,7 @@ function transitionToDone() {
   miniVideo.classList.remove("active");
   hangupImg.classList.remove("active");
   logoLink.classList.remove("active");
-  setStatus("You have left the call. <a target=\"_self\" href=\"" + roomLink + "\">Click here</a> to rejoin.");
+  setStatus("You have left the call. <a href=\"" + roomLink + "\">Click here</a> to rejoin.");
 }
 
 // function enterFullScreen() {
@@ -541,7 +542,8 @@ function updateInfo() {
     info += "PC State:<br />";
     info += "Signaling: " + pc.signalingState + "<br />";
     info += "ICE: " + pc.iceConnectionState + "<br />";
-//    setTimeout(function(){setStatus('')}, 2000);
+
+    setTimeout(function(){setStatus('')}, 2000);
   }
   for (var msg in infoDivErrors) {
     info += '<div color: red;">' +
@@ -550,6 +552,8 @@ function updateInfo() {
   if (info !== "") {
     console.log(info);
     setStatus(info);
+  } else {
+    setStatus("");
   }
 }
 
@@ -789,5 +793,8 @@ function adjustContainerSize(){
   containerDiv.style.width = videoWidth + 'px';
   containerDiv.style.height = videoHeight + 'px';
   containerDiv.style.left = (innerWidth - videoWidth) / 2 + 'px';
-  containerDiv.style.top = (innerHeight - videoHeight) / 2 + 'px';
+  // only center vertically if space is available, otherwise footer obscures localVideo
+  // if (innerHeight - footer.clientHeight > localVideo.clientHeight) {
+  //   containerDiv.style.top = (innerHeight - videoHeight) / 2 + 'px';
+  // }
 };

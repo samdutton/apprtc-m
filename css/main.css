@@ -43,13 +43,7 @@ button {
 border: none;
 border-radius: 2px;
 font-family: 'Roboto', 'Lucida Grande', sans-serif;
-font-size: 1em;
-height: 33px;
-margin: 0 0 0 0;
-padding: 0 0 0 0;
 position: relative;
-top: 1px;
-width: 56px;
 }
 
 button:active {
@@ -64,11 +58,18 @@ button[disabled] {
 color: white;
 }
 
+button#emailButton {
+font-size: 1em;
+height: 33px;
+margin: 0 0 0 0;
+padding: 0 0 0 0;
+top: 1px;
+width: 56px;
+}
+
 div#container {
 	height: 100%;
-	margin: auto;
 	position: absolute;
-	width: 100%;
 }
 
 div#emailDiv {
@@ -80,7 +81,7 @@ div#extras {
 	opacity: 0;
 	position: absolute;
 	top: 0;
-	transition: opacity 2s;
+	transition: all 2s;
 	width: 100%;
 	z-index: 2;
 }
@@ -88,6 +89,10 @@ div#extras {
 div#extras.active {
 	opacity: 1;
 /*	-webkit-transform: rotateY(360deg); */
+}
+
+div#googlePlus {
+  min-height: 44px;
 }
 
 div#roomLink {
@@ -124,7 +129,7 @@ footer {
   opacity: 0;
   padding: 20px 10px 20px 10px;
   position: absolute;
-  transition: opacity 1s;
+  transition: all 2s;
   width: 100%;
   z-index: 2;
 }
@@ -168,7 +173,7 @@ a#logo img {
 input#emailAddress {
   margin: 8px 10px 0 0;
   padding: 5.9px;
-  max-width: 16em;
+  max-width: 20.3em;
   width: calc(100% - 100px);
   font-size: 1em;
 }
@@ -226,7 +231,7 @@ video#remoteVideo.active {
 }
 
 @media screen and (max-width: 450px) {
-  button {
+  button#emailButton {
     height: 33px;
     padding: 0 0 1.8px 0;
     position: relative;

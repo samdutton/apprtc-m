@@ -11,27 +11,44 @@
 <meta itemprop="description" content="Video chat using the reference WebRTC application">
 <meta itemprop="image" content="images/webrtcLogo.png">
 
-<link href='http://fonts.googleapis.com/css?family=Roboto:400,300' rel='stylesheet' type='text/css'>
-
 <base target="_blank">
 
 <title>apprtc-m: room is full</title>
 
 <link rel="stylesheet" href="css/main.css" />
 <link rel="canonical" href="{{ room_link }}"/>
+<link href='http://fonts.googleapis.com/css?family=Roboto:400,300' rel='stylesheet' type='text/css'>
+
+<style>
+body {
+  padding: 25% 0 0 0;
+}
+button {
+  display: block;
+  font-size: 1.5em;
+  margin: 0 auto 0 auto;
+  padding: 0.5em;
+  width: 10em;
+}
+div {
+  color: white;
+  font-size: 2em;
+  margin: 0 0 2em 0;
+  text-align: center;
+}
+</style>
 
 </head>
 <body>
 
-<footer style="opacity: 1">
-  <div>Sorry, this room is full.</div>
-  <div><a target="_self" title="Open a new room location">Open a new room</a></div>
-</footer>
+<div>Sorry, this room is full.</div>
+<button>Open a new room</button>
+
 
 <script>
-
-var a = document.querySelector('footer a');
-a.href = location.origin;
+document.querySelector('button').onclick = function() {
+  location.href = location.origin;
+};
 </script>
 
 </body>

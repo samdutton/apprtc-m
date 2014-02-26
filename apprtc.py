@@ -323,6 +323,11 @@ class MainPage(webapp2.RequestHandler):
     # Get the base url without arguments.
     base_url = self.request.path_url
     user_agent = self.request.headers['User-Agent']
+    if 'developers.google.com' in user_agent:
+      # Request is from Google+ Share link
+      logging.info('Request from Google+ Share link')
+      return;
+
     room_key = sanitize(self.request.get('r'))
     stun_server = self.request.get('ss')
     if not stun_server:
