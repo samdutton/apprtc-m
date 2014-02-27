@@ -28,14 +28,14 @@
 <div id="container">
 
   <div id="extras">
-    <a id="logo" target="_blank" href="//www.webrtc.org/demo" title="Download the source code for this demo"><img src="images/webrtcLogo.png" alt="WebRTC logo" /></a>
-    <img id="hangup" src="images/crossCircleGrey.svg" alt="Hang up" title="End this call" />
+    <img id="mute" src="images/audioMuted.png" title="Unmute audio" />
+    <img id="hangup" src="images/crossCircleGrey.svg" title="End this call" />
   </div>
 
   <div id="videos">
-    <video muted id="miniVideo" autoplay></video>
-    <video muted id="remoteVideo" autoplay></video>
-    <video muted id="localVideo" height="100%" autoplay muted></video>
+    <video id="miniVideo" autoplay muted></video>
+    <video id="remoteVideo" autoplay muted></video>
+    <video id="localVideo" height="100%" autoplay muted></video>
   </div>
 
 </div>

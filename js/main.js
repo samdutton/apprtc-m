@@ -4,7 +4,7 @@ var miniVideo = document.getElementById("miniVideo");
 var localVideo = document.getElementById("localVideo");
 var remoteVideo = document.getElementById("remoteVideo");
 var hangupImg = document.getElementById("hangup");
-var logoLink = document.getElementById("logo");
+var muteImg = document.getElementById("mute");
 var footer = document.querySelector("footer");
 
 var hasLocalStream;
@@ -38,12 +38,24 @@ function initialize() {
   }
 
   hangupImg.onclick = hangup;
+  muteImg.onclick = function(){
+    if (remoteVideo.muted) {
+      remoteVideo.muted = false;
+      remoteVideo.title = 'Mute audio';
+      muteImg.src = 'images/audioNotMuted.png';
+    } else {
+      remoteVideo.muted = true;
+      remoteVideo.title = 'Unmute audio';
+      muteImg.src = 'images/audioMuted.png';
+    }
+  };
 
   console.log('Initializing; room=' + roomKey + '.');
   // Reset localVideo display to center.
   localVideo.addEventListener('loadedmetadata', function(){
-    adjustContainerSize();}
-  );
+    adjustContainerSize();
+    console.log('Local video dimensions: ' + localVideo.videoWidth + 'x' + localVideo.videoHeight);
+  });
   remoteVideo.addEventListener('loadedmetadata', function(){
     adjustContainerSize();}
   );
@@ -134,6 +146,10 @@ function doGetUserMedia() {
   // Call into getUserMedia via the polyfill (adapter.js).
   try {
     setStatus("Initializing...");
+    if (!!localStream) {
+      localVideo.src = null;
+      localStream.stop();
+    }
     getUserMedia(mediaConstraints, onUserMediaSuccess, onUserMediaError);
     console.log('Requested access to local media with mediaConstraints:\n' +
                 '  \'' + JSON.stringify(mediaConstraints) + '\'');
@@ -337,8 +353,10 @@ function onUserMediaSuccess(stream) {
   var status = '<div id="roomLink">Waiting for someone to join this room: <a href=' +
     roomLink + ' target="_blank">' + roomLink + '</a></div>';
 
-  status += '<div id="googlePlus" class="g-plus" data-action="share" data-height="35" style="float: left;"></div>';
+  status += '<div id="googlePlusAndCheckboxes">';
+  status += '<div id="googlePlus"><div class="g-plus" data-action="share" data-height="35"></div></div>';
   status += '<input id="hd" type="checkbox"><label for="hd">HD</label>'
+  status += '</div>';
   status += '<div id="emailDiv"><label for="email">Share link by email:</label><input id="emailAddress" type="email" autofocus placeholder="Enter email address" /><button id="emailButton">Send</button></div>';
 
   setStatus(status);
@@ -368,16 +386,18 @@ function onUserMediaSuccess(stream) {
   hdCheckbox.onclick = function(){
     var newHref;
     if (hdCheckbox.checked) {
-      if (location.href.indexOf('&hd=true') === -1) {
-        newHref = location.href + '&hd=true';
-      }
+      newHref = location.href + '&hd=true';
+      mediaConstraints.video = {mandatory: {minWidth: 1280, minHeight: 720}};
     } else {
       newHref = location.href.replace('&hd=true', '');
+      mediaConstraints.video = true;
     }
-      window.history.pushState("", "apprtc-m", newHref);
-      document.querySelector('link[rel=canonical]').href = newHref;
-      document.querySelector('div#roomLink a').innerHTML = newHref;
-      document.querySelector('div#roomLink a').href = newHref;
+    roomLink = newHref;
+    window.history.pushState("", "apprtc-m", newHref);
+    document.querySelector('link[rel=canonical]').href = newHref;
+    document.querySelector('div#roomLink a').innerHTML = newHref;
+    document.querySelector('div#roomLink a').href = newHref;
+    doGetUserMedia();
   };
 
   // Caller creates PeerConnection.
@@ -506,7 +526,7 @@ function transitionToActive() {
   setTimeout(function() {
     miniVideo.classList.add("active");
     hangupImg.classList.add("active");
-    logoLink.classList.add("active");
+    muteImg.classList.add("active");
     extrasDiv.classList.add("active");
   }, 1000);
   adjustContainerSize(); // force display to handle video size
@@ -531,7 +551,7 @@ function transitionToDone() {
   remoteVideo.classList.remove("active");
   miniVideo.classList.remove("active");
   hangupImg.classList.remove("active");
-  logoLink.classList.remove("active");
+  muteImg.classList.remove("active");
   setStatus("You have left the call. <a href=\"" + roomLink + "\">Click here</a> to rejoin.");
 }
 
