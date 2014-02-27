@@ -337,10 +337,9 @@ function onUserMediaSuccess(stream) {
   var status = '<div id="roomLink">Waiting for someone to join this room: <a href=' +
     roomLink + ' target="_blank">' + roomLink + '</a></div>';
 
-  // status += '<div><label for="email">Send link by email:</label> <input id="emailAddress" type="email" autofocus placeholder="Enter email address" /> <button id="emailButton">Send</button></div><div><a href="https://plus.google.com/share?url=' + encodeURIComponent(roomLink) + '" id="gplusLink">Share link via Google+</a></div>';
-
-    status += '<div id="googlePlus" class="g-plus" data-action="share" data-height="35"></div>';
-    status += '<div id="emailDiv"><label for="email">Share link by email:</label><input id="emailAddress" type="email" autofocus placeholder="Enter email address" /><button id="emailButton">Send</button></div>';
+  status += '<div id="googlePlus" class="g-plus" data-action="share" data-height="35" style="float: left;"></div>';
+  status += '<input id="hd" type="checkbox"><label for="hd">HD</label>'
+  status += '<div id="emailDiv"><label for="email">Share link by email:</label><input id="emailAddress" type="email" autofocus placeholder="Enter email address" /><button id="emailButton">Send</button></div>';
 
   setStatus(status);
 
@@ -360,6 +359,27 @@ function onUserMediaSuccess(stream) {
   };
   document.querySelector('#emailButton').onclick = sendEmail;
 
+  var hdCheckbox = document.querySelector('input#hd');
+  if (location.href.indexOf('&hd=true') === -1) {
+    hdCheckbox.checked = false;
+  } else {
+    hdCheckbox.checked = true;
+  }
+  hdCheckbox.onclick = function(){
+    var newHref;
+    if (hdCheckbox.checked) {
+      if (location.href.indexOf('&hd=true') === -1) {
+        newHref = location.href + '&hd=true';
+      }
+    } else {
+      newHref = location.href.replace('&hd=true', '');
+    }
+      window.history.pushState("", "apprtc-m", newHref);
+      document.querySelector('link[rel=canonical]').href = newHref;
+      document.querySelector('div#roomLink a').innerHTML = newHref;
+      document.querySelector('div#roomLink a').href = newHref;
+  };
+
   // Caller creates PeerConnection.
   maybeStart();
 }
@@ -367,7 +387,7 @@ function onUserMediaSuccess(stream) {
 function sendEmail(){
   var emailInput = document.querySelector('input#emailAddress');
   var subject = 'Join me for a video chat!';
-  var body = 'Please join me at the following address:\n\n' + roomLink;
+  var body = 'Please join me at the following address:\n\n' + location.href;
   var a = document.createElement('a');
   a.href = 'mailto:' + emailInput.value + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
   a.target = '_blank';
