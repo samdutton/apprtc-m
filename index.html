@@ -13,9 +13,9 @@
 
 <title>apprtc-m</title>
 
-<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
-<link rel="icon" href="/favicon.ico" type="image/png" />
-<link rel="icon" href="/favicon.ico" type="image/x-icon" />
+<link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+<link rel="icon" href="images/favicon.ico" type="image/png" />
+<link rel="icon" href="images/favicon.ico" type="image/x-icon" />
 <link rel="apple-touch-icon" href="/touch-icon-ipad.png" />
 <link href='//fonts.googleapis.com/css?family=Roboto:400,300' rel='stylesheet' type='text/css'>
 <link rel="stylesheet" href="css/main.css" />
@@ -28,13 +28,13 @@
 <div id="container">
 
   <div id="extras">
-    <img id="mute" src="images/audioMuted.png" title="Unmute audio" />
+    <img id="mute" src="images/audioNotMuted.png" title="Unmute audio" />
     <img id="hangup" src="images/crossCircleGrey.svg" title="End this call" />
   </div>
 
   <div id="videos">
     <video id="miniVideo" autoplay muted></video>
-    <video id="remoteVideo" autoplay muted></video>
+    <video id="remoteVideo" autoplay></video>
     <video id="localVideo" height="100%" autoplay muted></video>
   </div>
 
@@ -45,6 +45,7 @@
 <script src="/_ah/channel/jsapi"></script>
 <script src="/js/adapter.js"></script>
 <script src="/js/main.js"></script>
+<script src="/js/ga.js"></script>
 
 <script>
 // values set by App Engine app

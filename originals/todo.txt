@@ -1,0 +1,11 @@
+Done
+- move to WebRTC samples
+- mute
+- layout
+
+Todo:
+
+- move layout to CSS
+- check shortcuts
+- check favicon
+
