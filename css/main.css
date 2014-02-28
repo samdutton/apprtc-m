@@ -78,6 +78,14 @@ div#googlePlus {
   width: 200px;
 }
 
+div#googlePlus div {
+  width: 200px !important;
+}
+
+div#googlePlus div iframe {
+  width: 200px !important;
+}
+
 div#googlePlusAndCheckboxes {
   min-height: 44px;
 }

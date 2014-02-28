@@ -38,17 +38,8 @@ function initialize() {
   }
 
   hangupImg.onclick = hangup;
-  muteImg.onclick = function(){
-    if (remoteVideo.muted) {
-      remoteVideo.muted = false;
-      remoteVideo.title = 'Mute audio';
-      muteImg.src = 'images/audioNotMuted.png';
-    } else {
-      remoteVideo.muted = true;
-      remoteVideo.title = 'Unmute audio';
-      muteImg.src = 'images/audioMuted.png';
-    }
-  };
+
+  muteImg.onclick = toggleRemoteVideoElementMuted;
 
   console.log('Initializing; room=' + roomKey + '.');
   // Reset localVideo display to center.
@@ -76,6 +67,19 @@ function initialize() {
     doGetUserMedia();
   }
 }
+
+function toggleRemoteVideoElementMuted(){
+  if (remoteVideo.muted) {
+    remoteVideo.muted = false;
+    remoteVideo.title = 'Mute audio';
+    muteImg.src = 'images/audioNotMuted.png';
+  } else {
+    remoteVideo.muted = true;
+    remoteVideo.title = 'Unmute audio';
+    muteImg.src = 'images/audioMuted.png';
+  }
+}
+
 
 function openChannel() {
   console.log('Opening channel.');
@@ -652,6 +656,7 @@ function toggleAudioMute() {
 // <hotkey>-I: toggle Info box.
 // Return false to screen out original Chrome shortcuts.
 document.onkeydown = function(event) {
+  console.log(event.keyCode);
   var hotkey = event.ctrlKey;
   if (navigator.appVersion.indexOf('Mac') != -1)
     hotkey = event.metaKey;
@@ -660,6 +665,7 @@ document.onkeydown = function(event) {
   switch (event.keyCode) {
     case 68:
       toggleAudioMute();
+      toggleRemoteVideoElementMuted();
       return false;
     case 69:
       toggleVideoMute();
