@@ -359,12 +359,15 @@ class MainPage(webapp2.RequestHandler):
     audio = self.request.get('audio')
     video = self.request.get('video')
 
-    if self.request.get('hd').lower() == 'true':
-      if video:
-        message = 'The "hd" parameter has overridden video=' + str(video)
-        logging.error(message)
-        error_messages.append(message)
+    # default is now HD
+    if not video:
       video = 'minWidth=1280,minHeight=720'
+
+    if self.request.get('vga').lower() == 'true':
+      logging.info('>>>>> vga');
+      video = 'maxWidth=640,maxHeight=360'
+    elif self.request.get('qvga').lower() == 'true':
+      video = 'maxWidth=320,maxHeight=180'
 
     if self.request.get('minre') or self.request.get('maxre'):
       message = ('The "minre" and "maxre" parameters are no longer supported. '

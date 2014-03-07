@@ -381,28 +381,28 @@ function onUserMediaSuccess(stream) {
   };
   document.querySelector('#emailButton').onclick = sendEmail;
 
-  var hdCheckbox = document.querySelector('input#hd');
-  if (location.href.indexOf('&hd=true') === -1) {
-    hdCheckbox.checked = false;
-  } else {
-    hdCheckbox.checked = true;
-  }
-  hdCheckbox.onclick = function(){
-    var newHref;
-    if (hdCheckbox.checked) {
-      newHref = location.href + '&hd=true';
-      mediaConstraints.video = {mandatory: {minWidth: 1280, minHeight: 720}};
-    } else {
-      newHref = location.href.replace('&hd=true', '');
-      mediaConstraints.video = true;
-    }
-    roomLink = newHref;
-    window.history.pushState("", "apprtc-m", newHref);
-    document.querySelector('link[rel=canonical]').href = newHref;
-    document.querySelector('div#roomLink a').innerHTML = newHref;
-    document.querySelector('div#roomLink a').href = newHref;
-    doGetUserMedia();
-  };
+  // var hdCheckbox = document.querySelector('input#hd');
+  // if (location.href.indexOf('&hd=true') === -1) {
+  //   hdCheckbox.checked = false;
+  // } else {
+  //   hdCheckbox.checked = true;
+  // }
+  // hdCheckbox.onclick = function(){
+  //   var newHref;
+  //   if (hdCheckbox.checked) {
+  //     newHref = location.href + '&hd=true';
+  //     mediaConstraints.video = {mandatory: {minWidth: 1280, minHeight: 720}};
+  //   } else {
+  //     newHref = location.href.replace('&hd=true', '');
+  //     mediaConstraints.video = true;
+  //   }
+  //   roomLink = newHref;
+  //   window.history.pushState("", "apprtc-m", newHref);
+  //   document.querySelector('link[rel=canonical]').href = newHref;
+  //   document.querySelector('div#roomLink a').innerHTML = newHref;
+  //   document.querySelector('div#roomLink a').href = newHref;
+  //   doGetUserMedia();
+  // };
 
   // Caller creates PeerConnection.
   maybeStart();
@@ -556,7 +556,8 @@ function transitionToDone() {
   miniVideo.classList.remove("active");
   hangupImg.classList.remove("active");
   muteImg.classList.remove("active");
-  setStatus("You have left the call. <a href=\"" + roomLink + "\">Click here</a> to rejoin.");
+  // to allow
+  setTimeout(function(){setStatus("You have left the call. <a href=\"" + roomLink + "\">Click here</a> to rejoin.");}, 1000);
 }
 
 // function enterFullScreen() {
@@ -597,7 +598,7 @@ function updateInfo() {
     console.log(info);
     setStatus(info);
   } else {
-    setStatus("");
+//    setStatus("");
   }
 }
 
@@ -656,7 +657,6 @@ function toggleAudioMute() {
 // <hotkey>-I: toggle Info box.
 // Return false to screen out original Chrome shortcuts.
 document.onkeydown = function(event) {
-  console.log(event.keyCode);
   var hotkey = event.ctrlKey;
   if (navigator.appVersion.indexOf('Mac') != -1)
     hotkey = event.metaKey;
