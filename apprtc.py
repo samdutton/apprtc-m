@@ -364,7 +364,6 @@ class MainPage(webapp2.RequestHandler):
       video = 'minWidth=1280,minHeight=720'
 
     if self.request.get('vga').lower() == 'true':
-      logging.info('>>>>> vga');
       video = 'maxWidth=640,maxHeight=360'
     elif self.request.get('qvga').lower() == 'true':
       video = 'maxWidth=320,maxHeight=180'

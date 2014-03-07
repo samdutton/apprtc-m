@@ -1,11 +1,12 @@
-var videosDiv = document.getElementById("videos");
-var extrasDiv = document.getElementById("extras");
-var miniVideo = document.getElementById("miniVideo");
-var localVideo = document.getElementById("localVideo");
-var remoteVideo = document.getElementById("remoteVideo");
-var hangupImg = document.getElementById("hangup");
-var muteImg = document.getElementById("mute");
+var extrasDiv = document.querySelector("div#extras");
 var footer = document.querySelector("footer");
+var hangupImg = document.querySelector("img#hangup");
+var header = document.querySelector('header');
+var localVideo = document.querySelector("video#localVideo");
+var miniVideo = document.querySelector("video#miniVideo");
+var muteImg = document.querySelector("img#mute");
+var remoteVideo = document.querySelector("video#remoteVideo");
+var videosDiv = document.querySelector("#videos");
 
 var hasLocalStream;
 var localStream;
@@ -43,13 +44,13 @@ function initialize() {
 
   console.log('Initializing; room=' + roomKey + '.');
   // Reset localVideo display to center.
-  localVideo.addEventListener('loadedmetadata', function(){
-    adjustContainerSize();
-    console.log('Local video dimensions: ' + localVideo.videoWidth + 'x' + localVideo.videoHeight);
-  });
-  remoteVideo.addEventListener('loadedmetadata', function(){
-    adjustContainerSize();}
-  );
+  // localVideo.addEventListener('loadedmetadata', function(){
+  //   adjustContainerSize();
+  //   console.log('Local video dimensions: ' + localVideo.videoWidth + 'x' + localVideo.videoHeight);
+  // });
+  // remoteVideo.addEventListener('loadedmetadata', function(){
+  //   adjustContainerSize();}
+  // );
   // NOTE: AppRTCClient.java searches & parses this line; update there when
   // changing here.
   openChannel();
@@ -529,11 +530,12 @@ function transitionToActive() {
   }, 500);
   setTimeout(function() {
     miniVideo.classList.add("active");
-    hangupImg.classList.add("active");
-    muteImg.classList.add("active");
-    extrasDiv.classList.add("active");
+    header.classList.remove('hidden');
+    // hangupImg.classList.add("active");
+    // muteImg.classList.add("active");
+    // extrasDiv.classList.add("active");
   }, 1000);
-  adjustContainerSize(); // force display to handle video size
+  // adjustContainerSize(); // force display to handle video size
   setStatus("");
 }
 
@@ -554,9 +556,9 @@ function transitionToDone() {
   localVideo.classList.remove("active");
   remoteVideo.classList.remove("active");
   miniVideo.classList.remove("active");
-  hangupImg.classList.remove("active");
-  muteImg.classList.remove("active");
-  // to allow
+  // hangupImg.classList.remove("active");
+  // muteImg.classList.remove("active");
+  header.classList.add('hidden');
   setTimeout(function(){setStatus("You have left the call. <a href=\"" + roomLink + "\">Click here</a> to rejoin.");}, 1000);
 }
 
@@ -816,31 +818,42 @@ window.onbeforeunload = function() {
   sendMessage({type: 'bye'});
 }
 
-// Set the video diplaying in the center of window.
-window.onresize = adjustContainerSize;
+// // Set the video diplaying in the center of window.
+// window.onresize = adjustContainerSize;
 
-function adjustContainerSize(){
-  var aspectRatio;
-  if (remoteVideo.videoHeight !== 0) {
-    aspectRatio = remoteVideo.videoWidth/remoteVideo.videoHeight;
-  } else if (localVideo.videoHeight !== 0) {
-    aspectRatio = localVideo.videoWidth/localVideo.videoHeight;
-  } else {
-    return;
+// function adjustContainerSize(){
+//   var aspectRatio;
+//   if (remoteVideo.videoHeight !== 0) {
+//     aspectRatio = remoteVideo.videoWidth/remoteVideo.videoHeight;
+//   } else if (localVideo.videoHeight !== 0) {
+//     aspectRatio = localVideo.videoWidth/localVideo.videoHeight;
+//   } else {
+//     return;
+//   }
+
+//   var innerHeight = this.innerHeight;
+//   var innerWidth = this.innerWidth;
+//   var videoWidth = innerWidth < aspectRatio * window.innerHeight ?
+//                    innerWidth : aspectRatio * window.innerHeight;
+//   var videoHeight = innerHeight < window.innerWidth / aspectRatio ?
+//                     innerHeight : window.innerWidth / aspectRatio;
+//   containerDiv = document.getElementById('container');
+//   containerDiv.style.width = videoWidth + 'px';
+//   containerDiv.style.height = videoHeight + 'px';
+//   containerDiv.style.left = (innerWidth - videoWidth) / 2 + 'px';
+//   // only center vertically if space is available, otherwise footer obscures localVideo
+//   // if (innerHeight - footer.clientHeight > localVideo.clientHeight) {
+//   //   containerDiv.style.top = (innerHeight - videoHeight) / 2 + 'px';
+//   // }
+// };
+
+var timeout;
+document.body.onmousemove = function(e){
+  clearTimeout(timeout);
+  if (!header.classList.contains('active')) {
+    header.classList.add('active');
+    var timeout = setTimeout(function(){
+      header.classList.remove('active')
+    }, 5000);
   }
-
-  var innerHeight = this.innerHeight;
-  var innerWidth = this.innerWidth;
-  var videoWidth = innerWidth < aspectRatio * window.innerHeight ?
-                   innerWidth : aspectRatio * window.innerHeight;
-  var videoHeight = innerHeight < window.innerWidth / aspectRatio ?
-                    innerHeight : window.innerWidth / aspectRatio;
-  containerDiv = document.getElementById('container');
-  containerDiv.style.width = videoWidth + 'px';
-  containerDiv.style.height = videoHeight + 'px';
-  containerDiv.style.left = (innerWidth - videoWidth) / 2 + 'px';
-  // only center vertically if space is available, otherwise footer obscures localVideo
-  // if (innerHeight - footer.clientHeight > localVideo.clientHeight) {
-  //   containerDiv.style.top = (innerHeight - videoHeight) / 2 + 'px';
-  // }
-};
+}

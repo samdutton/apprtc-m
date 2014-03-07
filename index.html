@@ -25,20 +25,17 @@
 
 <body>
 
-<div id="container">
+<header class="hidden">
+  <img id="mute" src="images/audioNotMuted.png" title="Mute audio" />
+  <img id="hangup" src="images/hangup.svg" title="Mute audio" />
+</header>
 
-  <div id="extras">
-    <img id="mute" src="images/audioNotMuted.png" title="Unmute audio" />
-    <img id="hangup" src="images/crossCircleGrey.svg" title="End this call" />
-  </div>
-
-  <div id="videos">
-    <video id="miniVideo" autoplay muted></video>
-    <video id="remoteVideo" autoplay></video>
-    <video id="localVideo" height="100%" autoplay muted></video>
-  </div>
-
+<div id="videos">
+  <video id="miniVideo" autoplay muted></video>
+  <video id="remoteVideo" autoplay></video>
+  <video id="localVideo" autoplay muted></video>
 </div>
+
 
 <footer></footer>
 
@@ -48,7 +45,7 @@
 <script src="/js/ga.js"></script>
 
 <script>
-// values set by App Engine app
+// values set in apprtc.py
 var audio_send_codec = '{{ audio_send_codec }}';
 var audio_receive_codec = '{{ audio_receive_codec }}';
 var channelToken = '{{ token }}';
