@@ -1,10 +1,11 @@
+var cameraIcon = document.querySelector("div#camera");
 var extrasDiv = document.querySelector("div#extras");
 var footer = document.querySelector("footer");
-var hangupImg = document.querySelector("img#hangup");
+var hangupIcon = document.querySelector("div#hangup");
 var header = document.querySelector('header');
 var localVideo = document.querySelector("video#localVideo");
 var miniVideo = document.querySelector("video#miniVideo");
-var muteImg = document.querySelector("img#mute");
+var muteIcon = document.querySelector("div#mute");
 var remoteVideo = document.querySelector("video#remoteVideo");
 var videosDiv = document.querySelector("#videos");
 
@@ -38,9 +39,9 @@ function initialize() {
     return;
   }
 
-  hangupImg.onclick = hangup;
-
-  muteImg.onclick = toggleRemoteVideoElementMuted;
+  cameraIcon.onclick = changeCamera;
+  hangupIcon.onclick = hangup;
+  muteIcon.onclick = toggleRemoteVideoElementMuted;
 
   console.log('Initializing; room=' + roomKey + '.');
   // Reset localVideo display to center.
@@ -71,13 +72,15 @@ function initialize() {
 
 function toggleRemoteVideoElementMuted(){
   if (remoteVideo.muted) {
+    console.log('muted: unmute');
     remoteVideo.muted = false;
     remoteVideo.title = 'Mute audio';
-    muteImg.src = 'images/audioNotMuted.png';
+    muteIcon.classList.remove('active');
   } else {
+    console.log('not muted: mute');
     remoteVideo.muted = true;
     remoteVideo.title = 'Unmute audio';
-    muteImg.src = 'images/audioMuted.png';
+    muteIcon.classList.add('active');
   }
 }
 
@@ -360,7 +363,6 @@ function onUserMediaSuccess(stream) {
 
   status += '<div id="googlePlusAndCheckboxes">';
   status += '<div id="googlePlus"><div class="g-plus" data-action="share" data-height="35"></div></div>';
-  status += '<input id="hd" type="checkbox"><label for="hd">HD</label>'
   status += '</div>';
   status += '<div id="emailDiv"><label for="email">Share link by email:</label><input id="emailAddress" type="email" autofocus placeholder="Enter email address" /><button id="emailButton">Send</button></div>';
 
@@ -492,6 +494,10 @@ function hangup() {
   socket.close();
 }
 
+function swapCamera() {
+  alert('swapCamera');
+}
+
 function onRemoteHangup() {
   setStatus('The remote side hung up.');
   initiator = 0;
@@ -531,9 +537,6 @@ function transitionToActive() {
   setTimeout(function() {
     miniVideo.classList.add("active");
     header.classList.remove('hidden');
-    // hangupImg.classList.add("active");
-    // muteImg.classList.add("active");
-    // extrasDiv.classList.add("active");
   }, 1000);
   // adjustContainerSize(); // force display to handle video size
   setStatus("");
@@ -541,7 +544,7 @@ function transitionToActive() {
 
 function transitionToWaiting() {
   videosDiv.classList.remove("active");
-  extrasDiv.classList.remove("active");
+  header.classList.add('hidden');
   setTimeout(function() {
     localVideo.src = miniVideo.src;
     miniVideo.src = "";
@@ -556,8 +559,6 @@ function transitionToDone() {
   localVideo.classList.remove("active");
   remoteVideo.classList.remove("active");
   miniVideo.classList.remove("active");
-  // hangupImg.classList.remove("active");
-  // muteImg.classList.remove("active");
   header.classList.add('hidden');
   setTimeout(function(){setStatus("You have left the call. <a href=\"" + roomLink + "\">Click here</a> to rejoin.");}, 1000);
 }
@@ -847,13 +848,74 @@ window.onbeforeunload = function() {
 //   // }
 // };
 
-var timeout;
+// var timeout;
 document.body.onmousemove = function(e){
-  clearTimeout(timeout);
+//  clearTimeout(timeout);
   if (!header.classList.contains('active')) {
     header.classList.add('active');
-    var timeout = setTimeout(function(){
+    /* var timeout = */setTimeout(function(){
       header.classList.remove('active')
     }, 5000);
   }
 }
+
+
+
+var isGetSourcesSupported = MediaStreamTrack && MediaStreamTrack.getSources;
+
+if (isGetSourcesSupported){
+  MediaStreamTrack.getSources(gotSources);
+} else {
+  console.log('This browser does not support MediaStreamTrack.getSources().');
+}
+
+var videoSources = [];
+function gotSources(sources){
+  for (var i = 0; i != sources.length; ++i) {
+    var source = sources[i];
+    if (source.kind === 'video') {
+      videoSources.push(source);
+    }
+  }
+  // if more than one camera, show the camera icon
+  if (videoSources.length > 1) {
+    cameraIcon.classList.remove('hidden');
+  }
+}
+
+function changeCamera(){
+  // do icon animation
+  cameraIcon.classList.add('activated');
+  setTimeout(function(){
+    cameraIcon.classList.remove('activated');
+  }, 1000);
+
+  // check if sourceId has already been set
+  var sourceIdObj;
+  var videoOptional = mediaConstraints.video.optional;
+  if (!!videoOptional) {
+    for (i = 0; i !== videoOptional.length; ++i) {
+      if (videoOptional[i].hasOwnProperty('sourceId')){
+        sourceIdObj = videoOptional[i];
+        break;
+      }
+    }
+  }
+
+  if (sourceIdObj) {
+    for (var i = 0; i !== videoSources.length; ++i) {
+      var videoSourceId = videoSources[i].id;
+      // change it
+      if (sourceIdObj.sourceId !== videoSourceId) {
+        sourceIdObj.sourceId = videoSourceId;
+        break;
+      }
+    }
+  } else {
+    // default source is first in array of sources, so use second
+    mediaConstraints.video.optional =
+      [{'sourceId': videoSources[1].id}];
+  }
+  doGetUserMedia();
+}
+
