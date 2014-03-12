@@ -43,6 +43,8 @@ function initialize() {
   hangupIcon.onclick = hangup;
   muteIcon.onclick = toggleRemoteVideoElementMuted;
 
+  setRemoteVideoElementMuted(localStorage.getItem('mute'));
+
   console.log('Initializing; room=' + roomKey + '.');
   // Reset localVideo display to center.
   // localVideo.addEventListener('loadedmetadata', function(){
@@ -71,16 +73,20 @@ function initialize() {
 }
 
 function toggleRemoteVideoElementMuted(){
-  if (remoteVideo.muted) {
-    console.log('muted: unmute');
-    remoteVideo.muted = false;
-    remoteVideo.title = 'Mute audio';
-    muteIcon.classList.remove('active');
-  } else {
-    console.log('not muted: mute');
+  setRemoteVideoElementMuted(!remoteVideo.muted);
+}
+
+function setRemoteVideoElementMuted(mute){
+  if (mute) {
     remoteVideo.muted = true;
     remoteVideo.title = 'Unmute audio';
     muteIcon.classList.add('active');
+    localStorage.setItem('mute', 'true')
+  } else {
+    remoteVideo.muted = false;
+    remoteVideo.title = 'Mute audio';
+    muteIcon.classList.remove('active');
+    localStorage.setItem('mute', 'false')
   }
 }
 
@@ -160,7 +166,7 @@ function doGetUserMedia() {
     }
     getUserMedia(mediaConstraints, onUserMediaSuccess, onUserMediaError);
     console.log('Requested access to local media with mediaConstraints:\n' +
-                '  \'' + JSON.stringify(mediaConstraints) + '\'');
+      '  \'' + JSON.stringify(mediaConstraints) + '\'');
   } catch (e) {
     alert('getUserMedia() failed. Is this a WebRTC capable browser?');
     messageError('getUserMedia failed with exception: ' + e.message);
@@ -353,11 +359,27 @@ function messageError(msg) {
 
 function onUserMediaSuccess(stream) {
   console.log('User has granted access to local media.');
-  // Call the polyfill wrapper to attach the media stream to this element.
   attachMediaStream(localVideo, stream);
-  localVideo.classList.add('active');
   localStream = stream;
 
+  // if already connected, i.e. re-calling getUserMedia()
+  if (started){
+    // display the new stream
+    reattachMediaStream(miniVideo, localVideo);
+    pc.addStream(localStream);
+    if (initiator)
+      doCall();
+    else
+      calleeStart();
+  } else {
+    // call the polyfill wrapper to attach the media stream to this element.
+    maybeStart();
+    addSharingInfo();
+    localVideo.classList.add('active');
+  }
+}
+
+function addSharingInfo(){
   var status = '<div id="roomLink">Waiting for someone to join this room: <a href=' +
     roomLink + ' target="_blank">' + roomLink + '</a></div>';
 
@@ -376,39 +398,12 @@ function onUserMediaSuccess(stream) {
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
   })();
 
-
   document.querySelector('input#emailAddress').onkeydown = function(e){
     if (e.keyCode === 13){
       sendEmail();
     }
   };
   document.querySelector('#emailButton').onclick = sendEmail;
-
-  // var hdCheckbox = document.querySelector('input#hd');
-  // if (location.href.indexOf('&hd=true') === -1) {
-  //   hdCheckbox.checked = false;
-  // } else {
-  //   hdCheckbox.checked = true;
-  // }
-  // hdCheckbox.onclick = function(){
-  //   var newHref;
-  //   if (hdCheckbox.checked) {
-  //     newHref = location.href + '&hd=true';
-  //     mediaConstraints.video = {mandatory: {minWidth: 1280, minHeight: 720}};
-  //   } else {
-  //     newHref = location.href.replace('&hd=true', '');
-  //     mediaConstraints.video = true;
-  //   }
-  //   roomLink = newHref;
-  //   window.history.pushState("", "apprtc-m", newHref);
-  //   document.querySelector('link[rel=canonical]').href = newHref;
-  //   document.querySelector('div#roomLink a').innerHTML = newHref;
-  //   document.querySelector('div#roomLink a').href = newHref;
-  //   doGetUserMedia();
-  // };
-
-  // Caller creates PeerConnection.
-  maybeStart();
 }
 
 function sendEmail(){
@@ -527,7 +522,11 @@ function waitForRemoteVideo() {
 }
 
 function transitionToActive() {
-  reattachMediaStream(miniVideo, localVideo);
+  console.log('>>>>> transitionToActive, localVideo.src: ', localVideo.src);
+  // !!!hack: to avoid resetting miniVideo.src when remote side has changed camera
+  if (localVideo.src.substring(0, 4) !== 'http') {
+    reattachMediaStream(miniVideo, localVideo);
+  }
   remoteVideo.classList.add("active");
   videosDiv.classList.add("active");
   setTimeout(function() {
@@ -547,6 +546,8 @@ function transitionToWaiting() {
   header.classList.add('hidden');
   setTimeout(function() {
     localVideo.src = miniVideo.src;
+    console.log('>>>>>> transitionToWaiting, miniVideo.src: ',
+        miniVideo.src);
     miniVideo.src = "";
     remoteVideo.src = "";
   }, 500);
@@ -888,6 +889,7 @@ function changeCamera(){
   cameraIcon.classList.add('activated');
   setTimeout(function(){
     cameraIcon.classList.remove('activated');
+    header.classList.remove('active');
   }, 1000);
 
   // check if sourceId has already been set
