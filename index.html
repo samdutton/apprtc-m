@@ -25,7 +25,7 @@
 
 <body>
 
-<header>
+<header class="hidden">
   <div id="mute" title="Mute audio"></div>
   <div id="hangup" title="End this call"></div>
   <div id="camera" title="Choose a different camera" class="hidden"></div>
@@ -37,8 +37,23 @@
   <video id="localVideo" autoplay muted></video>
 </div>
 
-
-<footer></footer>
+<footer>
+  <div id="sharing">
+    <div id="roomLink">Waiting for someone to join this room: <a href="{{ room_link }}" target="_blank">{{ room_link }}</a></div>
+    <div id="googlePlusAndCheckboxes">
+      <div id="googlePlus">
+        <div class="g-plus" data-action="share" data-height="35"></div>
+      </div>
+    </div>
+    <div id="emailDiv">
+      <label for="email">Share link by email:</label>
+      <input id="emailAddress" type="email" autofocus placeholder="Enter email address" />
+      <button id="emailButton">Send</button>
+    </div>
+  </div>
+  <div id="status"></div>
+  <div id="techInfo"></div>
+</footer>
 
 <script src="/_ah/channel/jsapi"></script>
 <script src="/js/adapter.js"></script>

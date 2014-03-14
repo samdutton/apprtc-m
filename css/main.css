@@ -22,7 +22,7 @@ body {
 	font-family: 'Roboto', 'Open Sans', 'Lucida Grande', sans-serif;
 	height: 100%;
 	margin: 0;
-	padding: 0 0 20px 0;
+	padding: 0;
   width: 100%;
 }
 
@@ -99,6 +99,13 @@ div#roomLink {
   margin: 0 0 29px 0;
 }
 
+div#status {
+  z-index: 4;
+}
+
+div#techInfo {
+}
+
 div#videos {
   height: 100%;
 	pointer-events: none;
@@ -112,6 +119,24 @@ div#videos.active {
   -moz-transform: rotateY(180deg);
   -o-transform: rotateY(180deg);
   transform: rotateY(180deg);
+}
+
+footer > div {
+  background-color: black;
+  bottom: 0;
+  color: white;
+  font-size: 0.9em;
+  font-weight: 300;
+  line-height: 2em;
+  opacity: 0;
+  padding: 20px 10px 20px 10px;
+  position: absolute;
+  transition: opacity 2s;
+  width: 100%;
+}
+
+footer > div.active {
+  opacity: 0.8;
 }
 
 header div {
@@ -161,7 +186,6 @@ header div#camera.activated {
   }
 }
 
-
 header div#hangup {
   background-image: url(../images/hangupRed.png);
 }
@@ -180,30 +204,13 @@ header div#mute.active {
 }
 
 footer {
-  background-color: black;
-  bottom: 0;
-  color: white;
-  font-size: 0.9em;
-  font-weight: 300;
-  left: 0;
-  line-height: 2em;
-  min-height: 2em;
-  opacity: 0;
-  padding: 20px 10px 20px 10px;
-  position: absolute;
-  transition: all 2s;
-  width: 100%;
-}
-
-footer.active {
-  opacity: 0.8;
 }
 
 header {
   background-color: black;
   display: block;
   opacity: 0;
-  padding: 10px;
+  padding: 20px 10px 10px ;
   position: absolute;
   text-align: center;
   transition: all 0.7s;

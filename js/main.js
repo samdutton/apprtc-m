@@ -1,12 +1,16 @@
 var cameraIcon = document.querySelector("div#camera");
+var emailButton = document.querySelector('#emailButton');
+var emailInput = document.querySelector('input#emailAddress');
 var extrasDiv = document.querySelector("div#extras");
-var footer = document.querySelector("footer");
 var hangupIcon = document.querySelector("div#hangup");
 var header = document.querySelector('header');
 var localVideo = document.querySelector("video#localVideo");
 var miniVideo = document.querySelector("video#miniVideo");
 var muteIcon = document.querySelector("div#mute");
 var remoteVideo = document.querySelector("video#remoteVideo");
+var sharingDiv = document.querySelector("div#sharing");
+var statusDiv = document.querySelector("div#status");
+var techInfoDiv = document.querySelector("div#techInfo");
 var videosDiv = document.querySelector("#videos");
 
 var hasLocalStream;
@@ -72,25 +76,6 @@ function initialize() {
   }
 }
 
-function toggleRemoteVideoElementMuted(){
-  setRemoteVideoElementMuted(!remoteVideo.muted);
-}
-
-function setRemoteVideoElementMuted(mute){
-  if (mute) {
-    remoteVideo.muted = true;
-    remoteVideo.title = 'Unmute audio';
-    muteIcon.classList.add('active');
-    localStorage.setItem('mute', 'true')
-  } else {
-    remoteVideo.muted = false;
-    remoteVideo.title = 'Mute audio';
-    muteIcon.classList.remove('active');
-    localStorage.setItem('mute', 'false')
-  }
-}
-
-
 function openChannel() {
   console.log('Opening channel.');
   var channel = new goog.appengine.Channel(channelToken);
@@ -110,7 +95,8 @@ function maybeRequestTurn() {
   }
 
   for (var i = 0, len = pcConfig.iceServers.length; i < len; i++) {
-    if (pcConfig.iceServers[i].url.substr(0, 5) === 'turn:') {
+    if (pcConfig.iceServers[i].url &&
+        pcConfig.iceServers[i].url.substr(0, 5) === 'turn:') {
       turnDone = true;
       return;
     }
@@ -160,7 +146,8 @@ function doGetUserMedia() {
   // Call into getUserMedia via the polyfill (adapter.js).
   try {
     setStatus("Initializing...");
-    if (!!localStream) {
+    // if changing camera, etc.
+    if (typeof localStream !== 'undefined') {
       localVideo.src = null;
       localStream.stop();
     }
@@ -176,11 +163,11 @@ function doGetUserMedia() {
 function createPeerConnection() {
   try {
     // Create an RTCPeerConnection via the polyfill (adapter.js).
-    pc = new RTCPeerConnection(null, pcConstraints);
+    pc = new RTCPeerConnection(pcConfig, pcConstraints);
     pc.onicecandidate = onIceCandidate;
-    console.log('Created RTCPeerConnnection with:\n' +
-                '  config: \'' + JSON.stringify(pcConfig) + '\';\n' +
-                '  constraints: \'' + JSON.stringify(pcConstraints) + '\'.');
+    // console.log('Created RTCPeerConnnection with:\n' +
+    //             '  config: \'' + JSON.stringify(pcConfig) + '\';\n' +
+    //             '  constraints: \'' + JSON.stringify(pcConstraints) + '\'.');
   } catch (e) {
     messageError('Failed to create PeerConnection, exception: ' + e.message);
     alert('Cannot create RTCPeerConnection object; \
@@ -217,11 +204,11 @@ function maybeStart() {
 
 function setStatus(status) {
   if (status === ""){
-    footer.classList.remove("active");
+    statusDiv.classList.remove("active");
   } else {
-    footer.classList.add("active");
+    statusDiv.classList.add("active");
   }
-  footer.innerHTML = status;
+  statusDiv.innerHTML = status;
 }
 
 
@@ -243,7 +230,7 @@ function calleeStart() {
 function doAnswer() {
   console.log('Sending answer to peer.');
   pc.createAnswer(setLocalAndSendMessage,
-                  onCreateSessionDescriptionError, sdpConstraints);
+    onCreateSessionDescriptionError, sdpConstraints);
 }
 
 function mergeConstraints(cons1, cons2) {
@@ -315,6 +302,14 @@ function processSignalingMessage(message) {
   }
 }
 
+function onAddIceCandidateSuccess() {
+  console.log('AddIceCandidate success.');
+}
+
+function onAddIceCandidateError(error) {
+  messageError('Failed to add Ice Candidate: ' + error.toString());
+}
+
 function onChannelOpened() {
   console.log('Channel opened.');
   channelReady = true;
@@ -373,48 +368,13 @@ function onUserMediaSuccess(stream) {
       calleeStart();
   } else {
     // call the polyfill wrapper to attach the media stream to this element.
+    setStatus('');
+    if (initiator === 0) {
+      displaySharingInfo();
+    }
     maybeStart();
-    addSharingInfo();
     localVideo.classList.add('active');
   }
-}
-
-function addSharingInfo(){
-  var status = '<div id="roomLink">Waiting for someone to join this room: <a href=' +
-    roomLink + ' target="_blank">' + roomLink + '</a></div>';
-
-  status += '<div id="googlePlusAndCheckboxes">';
-  status += '<div id="googlePlus"><div class="g-plus" data-action="share" data-height="35"></div></div>';
-  status += '</div>';
-  status += '<div id="emailDiv"><label for="email">Share link by email:</label><input id="emailAddress" type="email" autofocus placeholder="Enter email address" /><button id="emailButton">Send</button></div>';
-
-  setStatus(status);
-
-  // Google+ sharing
-  window.___gcfg = {lang: 'en-GB'};
-  (function() {
-    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
-    po.src = 'https://apis.google.com/js/platform.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
-  })();
-
-  document.querySelector('input#emailAddress').onkeydown = function(e){
-    if (e.keyCode === 13){
-      sendEmail();
-    }
-  };
-  document.querySelector('#emailButton').onclick = sendEmail;
-}
-
-function sendEmail(){
-  var emailInput = document.querySelector('input#emailAddress');
-  var subject = 'Join me for a video chat!';
-  var body = 'Please join me at the following address:\n\n' + location.href;
-  var a = document.createElement('a');
-  a.href = 'mailto:' + emailInput.value + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
-  a.target = '_blank';
-  a.click();
-  // window.location = 'mailto:' + emailInput.value + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
 }
 
 function onUserMediaError(error) {
@@ -462,6 +422,7 @@ function onIceCandidate(event) {
 }
 
 function onRemoteStreamAdded(event) {
+  sharingDiv.classList.remove('active');
   console.log('Remote stream added.');
   attachMediaStream(remoteVideo, event.stream);
   remoteStream = event.stream;
@@ -487,10 +448,6 @@ function hangup() {
   stop();
   // will trigger BYE from server
   socket.close();
-}
-
-function swapCamera() {
-  alert('swapCamera');
 }
 
 function onRemoteHangup() {
@@ -522,7 +479,6 @@ function waitForRemoteVideo() {
 }
 
 function transitionToActive() {
-  console.log('>>>>> transitionToActive, localVideo.src: ', localVideo.src);
   // !!!hack: to avoid resetting miniVideo.src when remote side has changed camera
   if (localVideo.src.substring(0, 4) !== 'http') {
     reattachMediaStream(miniVideo, localVideo);
@@ -546,8 +502,6 @@ function transitionToWaiting() {
   header.classList.add('hidden');
   setTimeout(function() {
     localVideo.src = miniVideo.src;
-    console.log('>>>>>> transitionToWaiting, miniVideo.src: ',
-        miniVideo.src);
     miniVideo.src = "";
     remoteVideo.src = "";
   }, 500);
@@ -600,7 +554,6 @@ function updateInfo() {
   }
   if (info !== "") {
     console.log(info);
-    setStatus(info);
   } else {
 //    setStatus("");
   }
@@ -849,6 +802,44 @@ window.onbeforeunload = function() {
 //   // }
 // };
 
+function displaySharingInfo(){
+  emailInput.onkeydown = function(e){
+    if (e.keyCode === 13){
+      sendEmail();
+    }
+  };
+  emailButton.onclick = sendEmail;
+  sharingDiv.classList.add('active');
+}
+
+function sendEmail(){
+  var subject = 'Join me for a video chat!';
+  var body = 'Please join me at the following address:\n\n' + location.href;
+  var a = document.createElement('a');
+  a.href = 'mailto:' + emailInput.value + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+  a.target = '_blank';
+  a.click();
+  // window.location = 'mailto:' + emailInput.value + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+}
+
+function toggleRemoteVideoElementMuted(){
+  setRemoteVideoElementMuted(!remoteVideo.muted);
+}
+
+function setRemoteVideoElementMuted(mute){
+  if (mute) {
+    remoteVideo.muted = true;
+    remoteVideo.title = 'Unmute audio';
+    muteIcon.classList.add('active');
+    localStorage.setItem('mute', 'true')
+  } else {
+    remoteVideo.muted = false;
+    remoteVideo.title = 'Mute audio';
+    muteIcon.classList.remove('active');
+    localStorage.setItem('mute', 'false')
+  }
+}
+
 // var timeout;
 document.body.onmousemove = function(e){
 //  clearTimeout(timeout);
@@ -914,10 +905,18 @@ function changeCamera(){
       }
     }
   } else {
+    // first time non-default camera has been set
     // default source is first in array of sources, so use second
-    mediaConstraints.video.optional =
-      [{'sourceId': videoSources[1].id}];
+    mediaConstraints.video =
+      {optional: [{'sourceId': videoSources[1].id}]};
   }
   doGetUserMedia();
 }
 
+// Google+ sharing
+window.___gcfg = {lang: 'en-GB'};
+(function() {
+  var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+  po.src = 'https://apis.google.com/js/platform.js';
+  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+})();
