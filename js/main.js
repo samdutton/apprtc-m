@@ -33,7 +33,6 @@ var isVideoMuted = false;
 var isAudioMuted = false;
 // Types of gathered ICE Candidates.
 var gatheredIceCandidateTypes = { Local: {}, Remote: {} };
-var infoDivErrors = [];
 
 function initialize() {
   if (errorMessages.length > 0) {
@@ -133,7 +132,7 @@ function onTurnResult() {
       }
     }
   } else {
-    messageError('No TURN server; unlikely that media will traverse networks.  '
+    setErrorStatus('No TURN server; unlikely that media will traverse networks.  '
                  + 'If this persists please report it to '
                  + 'discuss-webrtc@googlegroups.com.');
   }
@@ -145,7 +144,7 @@ function onTurnResult() {
 function doGetUserMedia() {
   // Call into getUserMedia via the polyfill (adapter.js).
   try {
-    setStatus("Initializing...");
+   setStatus("Initializing...");
     // if changing camera, etc.
     if (typeof localStream !== 'undefined') {
       localVideo.src = null;
@@ -156,7 +155,7 @@ function doGetUserMedia() {
       '  \'' + JSON.stringify(mediaConstraints) + '\'');
   } catch (e) {
     alert('getUserMedia() failed. Is this a WebRTC capable browser?');
-    messageError('getUserMedia failed with exception: ' + e.message);
+    setErrorStatus('getUserMedia failed with exception: ' + e.message);
   }
 }
 
@@ -169,7 +168,7 @@ function createPeerConnection() {
     //             '  config: \'' + JSON.stringify(pcConfig) + '\';\n' +
     //             '  constraints: \'' + JSON.stringify(pcConstraints) + '\'.');
   } catch (e) {
-    messageError('Failed to create PeerConnection, exception: ' + e.message);
+    setErrorStatus('Failed to create PeerConnection, exception: ' + e.message);
     alert('Cannot create RTCPeerConnection object; \
           WebRTC is not supported by this browser.');
     return;
@@ -203,6 +202,7 @@ function maybeStart() {
 }
 
 function setStatus(status) {
+  statusDiv.classList.remove("warning"); // in case displayed
   if (status === ""){
     statusDiv.classList.remove("active");
   } else {
@@ -211,6 +211,17 @@ function setStatus(status) {
   statusDiv.innerHTML = status;
 }
 
+function setErrorStatus(status) {
+  if (status === ""){
+    statusDiv.classList.remove("active");
+    statusDiv.classList.remove('warning');
+  } else {
+    statusDiv.classList.add("active");
+    statusDiv.classList.add("warning");
+  }
+  console.log(status);
+  statusDiv.innerHTML = status;
+}
 
 function doCall() {
   var constraints = mergeConstraints(offerConstraints, sdpConstraints);
@@ -283,7 +294,7 @@ function sendMessage(message) {
 
 function processSignalingMessage(message) {
   if (!started) {
-    messageError('peerConnection has not been created yet!');
+    setErrorStatus('peerConnection has not been created yet!');
     return;
   }
 
@@ -307,7 +318,7 @@ function onAddIceCandidateSuccess() {
 }
 
 function onAddIceCandidateError(error) {
-  messageError('Failed to add Ice Candidate: ' + error.toString());
+  setErrorStatus('Failed to add Ice Candidate: ' + error.toString());
 }
 
 function onChannelOpened() {
@@ -339,17 +350,11 @@ function onChannelMessage(message) {
 }
 
 function onChannelError() {
-  messageError('Channel error.');
+  setErrorStatus('Channel error.');
 }
 
 function onChannelClosed() {
   console.log('Channel closed.');
-}
-
-function messageError(msg) {
-  console.log(msg);
-  infoDivErrors.push(msg);
-  updateInfo();
 }
 
 function onUserMediaSuccess(stream) {
@@ -378,7 +383,7 @@ function onUserMediaSuccess(stream) {
 }
 
 function onUserMediaError(error) {
-  messageError('Failed to get access to local media. Error code was ' +
+  setErrorStatus('Failed to get access to local media. Error code was ' +
                error.code + '. Continuing without sending a stream.');
   alert('Failed to get access to local media. Error code was ' +
         error.code + '. Continuing without sending a stream.');
@@ -388,7 +393,7 @@ function onUserMediaError(error) {
 }
 
 function onCreateSessionDescriptionError(error) {
-  messageError('Failed to create session description: ' + error.toString());
+  setErrorStatus('Failed to create session description: ' + error.toString());
 }
 
 function onSetSessionDescriptionSuccess() {
@@ -396,7 +401,7 @@ function onSetSessionDescriptionSuccess() {
 }
 
 function onSetSessionDescriptionError(error) {
-  messageError('Failed to set session description: ' + error.toString());
+  setErrorStatus('Failed to set session description: ' + error.toString());
 }
 
 function iceCandidateType(candidateSDP) {
@@ -541,16 +546,12 @@ function updateInfo() {
         }
       }
     }
-    info += "Gathering: " + pc.iceGatheringState + "<br />";
-    info += "PC State:<br />";
-    info += "Signaling: " + pc.signalingState + "<br />";
-    info += "ICE: " + pc.iceConnectionState + "<br />";
+    info += "Gathering: " + pc.iceGatheringState + "\n";
+    info += "PC State:\n";
+    info += "Signaling: " + pc.signalingState + "\n";
+    info += "ICE: " + pc.iceConnectionState + "\n";
 
     setTimeout(function(){setStatus('')}, 2000);
-  }
-  for (var msg in infoDivErrors) {
-    info += '<div color: red;">' +
-    infoDivErrors[msg] + '</div>';
   }
   if (info !== "") {
     console.log(info);
