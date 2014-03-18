@@ -1,17 +1,17 @@
-var cameraIcon = document.querySelector("div#camera");
+var cameraIcon = document.querySelector('div#camera');
 var emailButton = document.querySelector('#emailButton');
 var emailInput = document.querySelector('input#emailAddress');
-var extrasDiv = document.querySelector("div#extras");
-var hangupIcon = document.querySelector("div#hangup");
+var extrasDiv = document.querySelector('div#extras');
+var hangupIcon = document.querySelector('div#hangup');
 var header = document.querySelector('header');
-var localVideo = document.querySelector("video#localVideo");
-var miniVideo = document.querySelector("video#miniVideo");
-var muteIcon = document.querySelector("div#mute");
-var remoteVideo = document.querySelector("video#remoteVideo");
-var sharingDiv = document.querySelector("div#sharing");
-var statusDiv = document.querySelector("div#status");
-var techInfoDiv = document.querySelector("div#techInfo");
-var videosDiv = document.querySelector("#videos");
+var localVideo = document.querySelector('video#localVideo');
+var miniVideo = document.querySelector('video#miniVideo');
+var muteIcon = document.querySelector('div#mute');
+var remoteVideo = document.querySelector('video#remoteVideo');
+var sharingDiv = document.querySelector('div#sharing');
+var statusDiv = document.querySelector('div#status');
+var techInfoDiv = document.querySelector('div#techInfo');
+var videosDiv = document.querySelector('#videos');
 
 var hasLocalStream;
 var localStream;
@@ -144,7 +144,7 @@ function onTurnResult() {
 function doGetUserMedia() {
   // Call into getUserMedia via the polyfill (adapter.js).
   try {
-   setStatus("Initializing...");
+   setStatus('Initializing...');
     // if changing camera, etc.
     if (typeof localStream !== 'undefined') {
       localVideo.src = null;
@@ -202,22 +202,22 @@ function maybeStart() {
 }
 
 function setStatus(status) {
-  statusDiv.classList.remove("warning"); // in case displayed
-  if (status === ""){
-    statusDiv.classList.remove("active");
+  statusDiv.classList.remove('warning'); // in case displayed
+  if (status === ''){
+    statusDiv.classList.remove('active');
   } else {
-    statusDiv.classList.add("active");
+    statusDiv.classList.add('active');
   }
   statusDiv.innerHTML = status;
 }
 
 function setErrorStatus(status) {
-  if (status === ""){
-    statusDiv.classList.remove("active");
+  if (status === ''){
+    statusDiv.classList.remove('active');
     statusDiv.classList.remove('warning');
   } else {
-    statusDiv.classList.add("active");
-    statusDiv.classList.add("warning");
+    statusDiv.classList.add('active');
+    statusDiv.classList.add('warning');
   }
   console.log(status);
   statusDiv.innerHTML = status;
@@ -269,13 +269,13 @@ function setRemote(message) {
        onSetRemoteDescriptionSuccess, onSetSessionDescriptionError);
 
   function onSetRemoteDescriptionSuccess() {
-    console.log("Set remote session description success.");
+    console.log('Set remote session description success.');
     // By now all addstream events for the setRemoteDescription have fired.
     // So we can know if the peer is sending any stream or is only receiving.
     if (remoteStream) {
       waitForRemoteVideo();
     } else {
-      console.log("Not receiving any stream.");
+      console.log('Not receiving any stream.');
       transitionToActive();
     }
   }
@@ -306,7 +306,7 @@ function processSignalingMessage(message) {
   } else if (message.type === 'candidate') {
     var candidate = new RTCIceCandidate({sdpMLineIndex: message.label,
                                          candidate: message.candidate});
-    noteIceCandidate("Remote", iceCandidateType(message.candidate));
+    noteIceCandidate('Remote', iceCandidateType(message.candidate));
     pc.addIceCandidate(candidate);
   } else if (message.type === 'bye') {
     onRemoteHangup();
@@ -405,13 +405,13 @@ function onSetSessionDescriptionError(error) {
 }
 
 function iceCandidateType(candidateSDP) {
-  if (candidateSDP.indexOf("typ relay ") >= 0)
-    return "TURN";
-  if (candidateSDP.indexOf("typ srflx ") >= 0)
-    return "STUN";
-  if (candidateSDP.indexOf("typ host ") >= 0)
-    return "HOST";
-  return "UNKNOWN";
+  if (candidateSDP.indexOf('typ relay ') >= 0)
+    return 'TURN';
+  if (candidateSDP.indexOf('typ srflx ') >= 0)
+    return 'STUN';
+  if (candidateSDP.indexOf('typ host ') >= 0)
+    return 'HOST';
+  return 'UNKNOWN';
 }
 
 function onIceCandidate(event) {
@@ -420,7 +420,7 @@ function onIceCandidate(event) {
                  label: event.candidate.sdpMLineIndex,
                  id: event.candidate.sdpMid,
                  candidate: event.candidate.candidate});
-    noteIceCandidate("Local", iceCandidateType(event.candidate.candidate));
+    noteIceCandidate('Local', iceCandidateType(event.candidate.candidate));
   } else {
     console.log('End of candidates.');
   }
@@ -488,39 +488,39 @@ function transitionToActive() {
   if (localVideo.src.substring(0, 4) !== 'http') {
     reattachMediaStream(miniVideo, localVideo);
   }
-  remoteVideo.classList.add("active");
-  videosDiv.classList.add("active");
+  remoteVideo.classList.add('active');
+  videosDiv.classList.add('active');
   setTimeout(function() {
     localVideo.src = '';
-    localVideo.classList.remove("active");
+    localVideo.classList.remove('active');
   }, 500);
   setTimeout(function() {
-    miniVideo.classList.add("active");
+    miniVideo.classList.add('active');
     header.classList.remove('hidden');
   }, 1000);
   // adjustContainerSize(); // force display to handle video size
-  setStatus("");
+  setStatus('');
 }
 
 function transitionToWaiting() {
-  videosDiv.classList.remove("active");
+  videosDiv.classList.remove('active');
   header.classList.add('hidden');
   setTimeout(function() {
     localVideo.src = miniVideo.src;
-    miniVideo.src = "";
-    remoteVideo.src = "";
+    miniVideo.src = '';
+    remoteVideo.src = '';
   }, 500);
-  miniVideo.classList.remove("active");
-  localVideo.classList.add("active");
-  remoteVideo.classList.remove("active");
+  miniVideo.classList.remove('active');
+  localVideo.classList.add('active');
+  remoteVideo.classList.remove('active');
 }
 
 function transitionToDone() {
-  localVideo.classList.remove("active");
-  remoteVideo.classList.remove("active");
-  miniVideo.classList.remove("active");
+  localVideo.classList.remove('active');
+  remoteVideo.classList.remove('active');
+  miniVideo.classList.remove('active');
   header.classList.add('hidden');
-  setTimeout(function(){setStatus("You have left the call. <a href=\"" + roomLink + "\">Click here</a> to rejoin.");}, 1000);
+  setTimeout(function(){setStatus('You have left the call. <a href=\'' + roomLink + '\'>Click here</a> to rejoin.');}, 1000);
 }
 
 // function enterFullScreen() {
@@ -535,28 +535,28 @@ function noteIceCandidate(location, type) {
 }
 
 function updateInfo() {
-  var info = "";
+  var info = '';
   if (pc != null) {
     if (Object.keys(gatheredIceCandidateTypes).length > 0) {
-      info = "Gathered ICE Candidates<br />";
+      info = 'Gathered ICE Candidates<br />';
       for (var endpoint in gatheredIceCandidateTypes) {
-        info += endpoint + ":<br />";
+        info += endpoint + ':<br />';
         for (var type in gatheredIceCandidateTypes[endpoint]) {
-          info += "&nbsp;&nbsp;" + type + "<br />";
+          info += '&nbsp;&nbsp;' + type + '<br />';
         }
       }
     }
-    info += "Gathering: " + pc.iceGatheringState + "\n";
-    info += "PC State:\n";
-    info += "Signaling: " + pc.signalingState + "\n";
-    info += "ICE: " + pc.iceConnectionState + "\n";
+    info += 'Gathering: ' + pc.iceGatheringState + '\n';
+    info += 'PC State:\n';
+    info += 'Signaling: ' + pc.signalingState + '\n';
+    info += 'ICE: ' + pc.iceConnectionState + '\n';
 
     setTimeout(function(){setStatus('')}, 2000);
   }
-  if (info !== "") {
+  if (info !== '') {
     console.log(info);
   } else {
-//    setStatus("");
+//    setStatus('');
   }
 }
 
